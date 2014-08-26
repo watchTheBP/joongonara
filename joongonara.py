@@ -8,6 +8,8 @@ import json
 import re
 from dateutil import parser
 import numpy
+import lxml
+from bs4 import BeautifulSoup
 
 def main():
     joongonara_index = dict()
@@ -30,7 +32,7 @@ def main():
 
                             if tree.xpath('//*[@id="ct"]/p') != None:
 
-                                if id <= 10000:
+                                if id <= 10:
                                     #title
                                     #article_id
                                     if tree.xpath('//*[@id="ct"]/div[1]/h2/text()')[0].strip() != None:
@@ -79,6 +81,12 @@ def main():
                                     if tree.xpath('//*[@id="phoneNumber"]/text()'):
                                         phone = tree.xpath('//*[@id="phoneNumber"]/text()')[0]
                                         joongonara.update({"phone":phone})
+
+                                    #body
+                                    soup = BeautifulSoup(requests.get(url).text)
+                                    body = soup.find('div', {'id':'postContent'})
+                                    body = str(body)
+                                    joongonara.update({"body":body})
 
                                     #email
                                     if tree.xpath('//*[@id="seller_info"]/div/ul/li[2]/p/a/text()') != None:
