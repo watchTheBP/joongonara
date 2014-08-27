@@ -7,10 +7,13 @@ from requests.exceptions import ConnectionError
 import json
 import re
 from dateutil import parser
-import numpy
+##import numpy
+import random
 import lxml
 from bs4 import BeautifulSoup
 import time
+
+from elasticsearch import Elasticsearch
 
 def articleid_catcher():
     cookie = {'Cookie':"ncvid=#vid#_210.57.236.92SzQw; WMONID=j2Y5SRWoyrC; NNB=WSMDQAO7Z73FG; nid_inf=2045810834; NID_AUT=8mmvoHcg+T1i063ormAnXPkE/8ZI+Vl1a4hQEgk6Akf3LELrYTyDQOw5XlHQV7WhGhjSBW1T6Y3+RR4IVzfUzGD8PCJyJePTo4nALeqURhYQSCNHnKTqiQQMkuQOs8Pv; NID_SES=AAABQ8yPygIgEO/Ihk9KOruk8asXNS28tcn+ictUEY4x6uHnI5Hz/yzHrM8pkNWh732JjaPAiCieMFO8kMU+QhaTAX4hLBHsP5KW7ReqvbFGSsYmP68G8vrlrOi7V39eI6UlDNY9npdjg4VQYSX6x+QunA/hVzMBSzxlsj4rHxb7I1r7FTsN5zJWwNhBqukn99lIcwSH4IAovsPF4HIG6aeplS4luC949udkN3zOftqknBOuunexz8FbyrrK2DGZ30w17mSR1rGGmfDRYcP1K6ZmhhNMah4CNFnU4U7bg0zW162GtNYpIafVaPLSJlX0csiLVFN9+v2MjhSpS0PewVwcOXt1fTP+qZmja+8DtpQJKwTtwRvamHbjFBo0SCgKxp4uFhhTIvTT71R/Ht7Kxyivx81sjMf6fA1yv7EC2sQG8NuuGnuD0FVzp8aU4cDHN8xR9w==; npic=DkmujVzw51p+goyLrc97euE9wHLh9fenNaf7Tn1byAN+pTaJokfC69TpJE/LwFyJCA==; ncu=89bb4b7e623b42fed6317e415a9ad0168f981988b80a; rmvc=10050146; ncvc2=1e7e86a2f6c0c27359a7ddeeca304b378fca3fa6fd9d43fe1fdae73488aa4c8752ae68b1744fddfe801a49e157d572ba384b7f63ce8b89a3904bf628f1dc66a3d2c4ccac82a88dd7c5c5c6c2c1c3d8dfc7d5cad5d3d5d5dbecebe89894b398aeb3b6bea3afbdaca3a3a5e9f6f0f1f78c8f8b8f98849a8581879b959e999e15; personaconmain|bernardjin=EAE11B32508CF3CEC41B74A48AE63E092C27FF2A39B7B9A218767A543203FB65; personacon|bernardjin=2ADD4716060F468BDB07BB69C1DC016B3FC4000403616BCC07C24AC6543D6F22; JSESSIONID=E13F1DCE6D8D4D3BD0812F2471F1CD6C; BMR="}
@@ -118,11 +121,21 @@ def main():
                                             email = email[0].strip()
 
                                         joongonara.update({"email":email})
-                                    print json.dumps(joongonara_index)
-                                    print json.dumps(joongonara, ensure_ascii=False)
-                                    json.dump(joongonara_index, outfile)
-                                    json.dump(joongonara, outfile, ensure_ascii=False)
-                                    sleep(numpy.random.rand(1))
+#                                    print json.dumps(joongonara_index)
+#                                    print json.dumps(joongonara, ensure_ascii=False)
+                                    print "article_id," + str(joongonara['article_id'])
+                                    es = Elasticsearch()
+
+                                    doc = joongonara
+                                    doc['datetime'] = datetime.strptime(doc['datetime'], "%Y-%m-%d %H:%M:%S")
+                                    doc['crawltime'] = datetime.strptime(doc['crawl_time'], "%Y/%m/%d %H:%M:%S")
+
+                                    res = es.index(index="joongo-test", doc_type="post", body=doc) # no id
+                                    print res['created']
+
+                                    #json.dump(joongonara_index, outfile)
+                                    #json.dump(joongonara, outfile, ensure_ascii=False)
+                                    sleep(random.randint(1,3))
                                     id += 1
                                 else:
                                     break
