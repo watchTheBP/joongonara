@@ -7,7 +7,6 @@ from requests.exceptions import ConnectionError
 import json
 import re
 from dateutil import parser
-##import numpy
 import random
 import lxml
 from bs4 import BeautifulSoup
@@ -125,9 +124,9 @@ def main():
 
                                 doc = joongonara
                                 doc['datetime'] = datetime.strptime(doc['datetime'], "%Y-%m-%d %H:%M:%S")
-                                doc['crawltime'] = datetime.strptime(doc['crawl_time'], "%Y/%m/%d %H:%M:%S")
+                                doc['crawl_time'] = datetime.strptime(doc['crawl_time'], "%Y/%m/%d %H:%M:%S")
 
-                                res = es.index(index="joongo-test", doc_type="post", body=doc) # no id
+                                res = es.index(index="joongonara", doc_type="post", body=doc) # no id
                                 print res['created']
 
                                 #json.dump(joongonara_index, outfile)
@@ -141,9 +140,6 @@ def main():
         file = open('joongonara_log.txt', 'w')
         id = str(a + 25000)
         file.write("articleid : " + id)
-
-
-
 
 if __name__ == '__main__':
     main()
